@@ -60,7 +60,17 @@ but you'll have to implement those three above instructions first!
 ## Step 0: IMPORTANT: inventory what is here!
 
 * Make a list of files here.
+  ### List of files
+    - FAQ - gives me some good info
+    - LS-8 Cheatsheet - some helpul things here as well
+    - LS-8 Spec 
+    LS - 8
+      ls - 8 and CPU are in here. CPU is what makes up the CPU and ls8.py runs the CPU?
+    ASM 
+      - some magical things in this folder
+
 * Write a short 3-10-word description of what each file does.
+  ### Done up above
 * Note what has been implemented, and what hasn't.
 * Read this whole file.
 * Skim the spec.
