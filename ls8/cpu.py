@@ -89,18 +89,21 @@ class CPU:
             instruction = self.ram[IR]
             
             if instruction == self.LDI:
+                # LDI SETS THE VALUE OF A REGISTER TO AN INTEGER
                 reg_num = self.ram[IR + 1]
                 value = self.ram[IR + 2]
                 self.register[reg_num] = value
                 IR += 3
             
             elif instruction == self.PRN:
+                # PRINTS NUMERIC VALUE STORED IN THE GIVEN REGISTER 
                 reg_num = self.ram[IR + 1]
                 value = self.register[reg_num]
                 print(value)
                 IR += 2
 
             elif instruction == self.HLT:
+                # HALTS THE CPU AND EXIT THE EMULATOR
                 self.halt()
 
             else:
