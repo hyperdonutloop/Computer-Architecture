@@ -7,7 +7,14 @@ class CPU:
 
     def __init__(self):
         """Construct a new CPU."""
-        pass
+        # STEP 1 - Add list properties to the CPU class to hold 256 bytes of memory and 8 general purpose registers
+        self.ram = [0] * 256
+        self.register = [0] * 8
+        self.running = True
+        self.pc = 0
+        self.HLT = 0b00000001
+        self.LDI = 0b10000010
+        self.PRN = 0b01000111
 
     def load(self):
         """Load a program into memory."""
@@ -39,6 +46,19 @@ class CPU:
         #elif op == "SUB": etc
         else:
             raise Exception("Unsupported ALU operation")
+    
+    def halt(self):
+        self.running = False
+
+    # STEP 2: Add RAM functions ram_read and ram_write
+    # These access the RAM inside the CPU object
+    def ram_read(self, address):
+        # RR should accept the address to read and return the value
+        return self.ram[address]
+    
+    def ram_write(self, address, payload):
+        # RW should accept a value to write and the address to write it to
+        self.ram[address] = payload
 
     def trace(self):
         """
@@ -62,4 +82,31 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
+        # STEP 3 - Implement the core of RUN
+        IR = self.pc
+
+        while self.running:
+            instruction = self.ram[IR]
+            
+            if instruction == self.LDI:
+                reg_num = self.ram[IR + 1]
+                value = self.ram[IR + 2]
+                self.register[reg_num] = value
+                IR += 3
+            
+            elif instruction == self.PRN:
+                reg_num = self.ram[IR + 1]
+                value = self.register[reg_num]
+                print(value)
+                IR += 2
+
+            elif instruction == self.HLT:
+                self.halt()
+
+            else:
+                print ('Invalid Instructions')
+                self.halt()
+
+
+        
         pass
