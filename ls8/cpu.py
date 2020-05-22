@@ -12,6 +12,10 @@ POP = 0b01000110
 CALL = 0b01010000
 IRET = 0b00010011
 RET = 0b00010001
+CMP = 0b10100111
+JMP = 0b01010100
+JNE = 0b01010110
+JEQ = 0b01010101
 
 class CPU:
     """Main CPU class."""
@@ -21,22 +25,10 @@ class CPU:
         # STEP 1 - Add list properties to the CPU class to hold 256 bytes of memory and 8 general purpose registers
         self.ram = [0] * 256
         self.register = [0] * 8
-        # self.running = True
+        self.flag = [0] * 8
         self.pc = 0 #program counter
         self.sp = 0xf3 #243 # stack pointer
-        self.fl = False
-        # self.HLT = 0b00000001
-        # self.LDI = 0b10000010
-        # self.PRN = 0b01000111
-        # self.ADD = 0b10100000
-        # self.MUL = 0b10100010
-        # self.PUSH = 0b01000101
-        # self.POP = 0b01000110
-        # self.CALL = 0b01010000
-        # self.RET = 0b00010011
-        # self.IRET = 0b00010011
-        
-
+    
     def load(self):
         """Load a program into memory."""
         address = 0
@@ -63,6 +55,16 @@ class CPU:
             self.register[reg_a] += self.register[reg_b]
         elif op == 'MUL':
             self.register[reg_a] *= self.register[reg_b]
+        elif op == 'CMP':
+            # if they are equal, set flag to 1
+            if self.register[reg_a] == self.register[reg_b]:
+                self.flag = 0b00000001
+            # if register A is less than register b set L flag to 1
+            elif self.register[reg_a] < self.register[reg_b]:
+                self.flag = 0b00000100
+            # if register A is greater than B set the G flag to 1
+            elif self.register[reg_a] > self.register[reg_b]:
+                self.flag = 0b00000010
         else:
             raise Exception("Unsupported ALU operation")
     
@@ -114,8 +116,7 @@ class CPU:
                 # FL register popped off stack
                 # return address popped off stack and stored = in PC
                 # interrupts are re-enabled
-                popped = self.ram[self.sp]
-                self.pc = popped
+                self.pc = self.ram[self.sp]
                 self.sp += 1
             
             elif instruction == PUSH:
@@ -151,11 +152,36 @@ class CPU:
                 self.alu('ADD', operand_a, operand_b)
                 self.pc += 3
 
+            elif instruction == CMP:
+                # instruction handled by alu
+                self.alu('CMP', operand_a, operand_b)
+                self.pc += 3
+            
+            elif instruction == JMP:
+                self.pc = self.register[self.ram_read(self.pc + 1)]
+            
+            elif instruction == JNE:
+                if not self.flag_check():
+                    reg_num = self.ram[self.pc + 1]
+                    self.pc = self.register[reg_num]
+                else:
+                    self.pc += 2
+            
+            elif instruction == JEQ:
+                if self.flag_check():
+                    reg_num = self.ram[self.pc + 1]
+                    self.pc = self.register[reg_num]
+                else:
+                    self.pc += 2
+
             elif instruction == PRN:
                 # PRINTS NUMERIC VALUE STORED IN THE GIVEN REGISTER 
                 value = self.register[operand_a]
                 print(value)
                 self.pc += 2
+            
+            
+
 
             # else:
             #     print ('Invalid Instructions')
@@ -170,6 +196,10 @@ class CPU:
     def ram_write(self, address, value):
         # RW should accept a value to write and the address to write it to
         self.ram[address] = value
+
+    def flag_check(self):
+        return (self.flag == 1)
+
 
 # cpu = CPU()
 # cpu.load()
